@@ -1,53 +1,68 @@
-# Brightness Fix for ASUS VivoBook K15 OLED (K513EA)
+<div align="center">
 
-One‑click script that automatically applies the required SSDT/ACPI patch and OpenCore `config.plist` changes to enable native backlight control on the Intel Iris Xe iGPU.
+# ASUS VivoBook K15 OLED · Brightness Fix
 
-## Supported hardware
-- **Laptop:** ASUS VivoBook K15 OLED K513EA
-- **CPU:** Intel Core i5‑1135G7
-- **iGPU:** Intel Iris Xe (device ID `8086:9A49`)
+**Experimental OpenCore backlight helper for ASUS K513EA · Intel Iris Xe**
 
-If your machine has a different iGPU, the script will exit early and report the detected ID so you can verify compatibility.
+![macOS](https://img.shields.io/badge/macOS-Hackintosh-111111?style=for-the-badge&logo=apple)
+![CPU](https://img.shields.io/badge/CPU-i5--1135G7-0071C5?style=for-the-badge&logo=intel)
+![GPU](https://img.shields.io/badge/GPU-Iris%20Xe-00A98F?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-## What the script does
-1. **Detects** the current iGPU device ID from the running system (`ioreg` / `system_profiler`).
-2. **Compares** it against the known good ID (`9A49`). If it does not match, the script aborts – no changes are made.
-3. **Creates/updates** an SSDT (`brightness_fix.aml`) in `EFI/OpenCore/ACPI/patched/` (or a location you specify). A minimal template is provided; replace it with your own compiled SSDT if you have one.
-4. **Patches** `config.plist` (if present) by adding an `ACPI.Add` entry named `BrightnessFix` and a small kernel quirk for backlight.
-5. **Backs up** any files it modifies (`.backup_YYYYMMDDHHMMSS` suffix).
+</div>
+
+A hardware-specific shell helper intended to prepare an ACPI backlight patch and update an OpenCore configuration. Review the script and generated files before applying anything to a bootable EFI.
+
+## Target hardware
+
+| Component | Target |
+|---|---|
+| Laptop | ASUS VivoBook K15 OLED K513EA |
+| CPU | Intel Core i5-1135G7 (Tiger Lake-U) |
+| iGPU | Intel Iris Xe · PCI ID `8086:9A49` |
+| Bootloader | OpenCore |
+
+## Before running
+
+- Back up the EFI you actually boot and test from a separate USB EFI.
+- Read `fix_brightness.sh` before running it with write access.
+- The supplied `templates/brightness_fix.aml.template` is a placeholder, not a compiled SSDT. Compile and validate your own SSDT before relying on it.
+- Do not assume the default path matches every OpenCore folder layout.
 
 ## Usage
 
+Preview intended changes:
+
 ```bash
-# Normal run (will modify files)
-./fix_brightness.sh
-
-# Dry‑run – show what would happen without writing anything
 ./fix_brightness.sh --dry-run
-
-# Verbose output
-./fix_brightness.sh --verbose
-
-# Both flags
 ./fix_brightness.sh --dry-run --verbose
 ```
 
-## Prerequisites
-- macOS (or a Hackintosh running macOS Tahoe) with OpenCore bootloader.
-- OpenCore EFI folder at `./EFI/OpenCore` relative to the repository root.
-- (Optional) `iasl` compiler if you want to compile your own SSDT instead of using the template.
-- `PlistBuddy` is used for `config.plist` edits and is included with macOS.
+Apply only after reviewing the script's output and confirming the target EFI path:
 
-## License
-MIT – feel free to adapt and share.
+```bash
+./fix_brightness.sh
+```
 
-buymeacoffee.com/kl06
+Verify that timestamped backups exist before rebooting.
+
+## Repository contents
+
+- `fix_brightness.sh` — detection and OpenCore update helper
+- `templates/brightness_fix.aml.template` — placeholder template; not a ready-to-install AML
+
+## Compatibility
+
+Written for the K513EA / i5-1135G7 / Iris Xe configuration. Other laptop revisions, macOS releases, panels, and ACPI layouts are not established as compatible.
 
 ## Contributing
-1. Fork this repository.
-2. Add your own compiled SSDT (replace the template) or improve detection.
-3. Open a pull request; please keep the script portable and add tests for other Intel iGPUs if you wish.
 
----
+Include the exact laptop variant, macOS build, OpenCore version, and sanitized logs. Never attach SMBIOS serials, MLB, ROM, UUID, passwords, Wi-Fi credentials, or personal identifiers.
 
-**Note:** This script was written specifically for the ASUS VivoBook K15 OLED configuration. Use at your own risk; always keep backups of your EFI folder.
+## License
+
+MIT. See the repository license terms.
+
+## Disclaimer
+
+Experimental community software, provided as-is without warranty. Keep a known-good EFI and recovery USB. A faulty display/ACPI change can result in a black internal display.
